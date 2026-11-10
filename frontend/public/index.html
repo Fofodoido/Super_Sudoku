@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Super Sudoku</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="app"></div>
+  <script src="elm.js"></script>
+  <script>
+    (function () {
+      var KEY = "super-sudoku-stats";
+
+      function loadStats() {
+        try {
+          var raw = localStorage.getItem(KEY);
+          return raw ? JSON.parse(raw) : null;
+        } catch (e) {
+          return null;
+        }
+      }
+
+      var now = new Date();
+      var today = now.getFullYear() * 10000 + (now.getMonth() + 1) * 100 + now.getDate();
+      var dayNumber = Math.floor(
+        Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()) / 86400000
+      );
+
+      var app = Elm.Main.init({
+        node: document.getElementById("app"),
+        flags: { stats: loadStats(), today: today, dayNumber: dayNumber }
+      });
+
+      app.ports.saveStats.subscribe(function (stats) {
+        try {
+          localStorage.setItem(KEY, JSON.stringify(stats));
+        } catch (e) {
+          /* armazenamento indisponível: estatísticas ficam só na sessão */
+        }
+      });
+
+      // Evita que setas e espaço rolem a página durante o jogo.
+      window.addEventListener("keydown", function (e) {
+        var tag = (e.target && e.target.tagName) || "";
+        if (tag === "INPUT") return;
+        if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", " "].indexOf(e.key) >= 0) {
+          e.preventDefault();
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
