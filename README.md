@@ -1,97 +1,90 @@
-# Super Sudoku
+# Campo Minado — Prolog + Elm
 
-Sudoku com regras combináveis, gerador com dificuldade medida por lógica
-e um assistente que explica cada passo como um professor faria.
+Projeto de Campo Minado web desenvolvido com SWI-Prolog e Elm, com interface em português e HTML/CSS.
 
-- **Lógica do jogo:** Elm (estado da partida, conflitos, modos, pontuação)
-  e Prolog (geração, unicidade, resolução e raciocínio "humano").
-- **Visual:** HTML + CSS puros (tema claro/escuro, layout responsivo).
+**Estado atual:** o projeto está em planejamento de migração. O código e o bundle compilado ainda executam o Sudoku original; os recursos de Campo Minado descritos abaixo são entregas planejadas.
 
-## Como rodar
+## Escopo planejado
 
-Requisitos: [SWI-Prolog](https://www.swi-prolog.org/) 9+ e
-[Elm](https://elm-lang.org/) 0.19.1 (`npm install -g elm`). O
-`frontend/public/elm.js` já vem compilado nesta cópia: sem mexer no Elm,
-basta `swipl backend/server.pl 8080`.
+- Três dificuldades: fácil (9x9, 10 minas), médio (16x16, 40 minas) e difícil (16x30, 99 minas).
+- Primeiro clique seguro, revelação de células e expansão de áreas vazias.
+- Bandeiras, contador de bandeiras restantes e cronômetro local.
+- Vitória ao revelar todas as células seguras e derrota ao revelar uma mina.
+- Nova partida, reinício e controles por mouse, teclado e toque.
+- Interface responsiva com foco visível e estados identificáveis sem depender apenas de cor.
 
-A explicação de cada tópico da disciplina presente no projeto está em
-[`docs/EXPLICACAO.md`](docs/EXPLICACAO.md).
+Ranking, contas, multiplayer, desfazer e dicas ficam fora do MVP. O primeiro clique seguro não garante que toda partida possa ser resolvida sem adivinhação.
+
+## Arquitetura planejada
+
+| Camada | Responsabilidade |
+| --- | --- |
+| SWI-Prolog | Geometria, geração de minas, regras, transições e resultado da partida |
+| HTTP/JSON em Prolog | API e sessões em memória; envio apenas do estado público ao cliente |
+| Elm | Modelo da interface, comunicação HTTP, eventos, carregamento e tratamento de erros |
+| HTML/CSS | Apresentação responsiva e controles acessíveis |
+
+O servidor guardará as minas e validará as jogadas. As sessões terão expiração por inatividade e serão perdidas ao reiniciar o servidor. Os endpoints planejados são `POST /api/games`, `GET /api/games/:id` e `POST /api/games/:id/actions`; eles ainda precisam ser implementados.
+
+O [plano de migração](docs/PLANO_CAMPO_MINADO.md) detalha o contrato proposto, as regras, as dependências entre frentes e os critérios de conclusão.
+
+## Equipe e responsabilidades
+
+| Frente | Integrante | GitHub | Responsabilidade | Revisor obrigatório do PR |
+| --- | --- | --- | --- | --- |
+| 01 | Gustavo Xavier Evangelista | [guxvr](https://github.com/guxvr) | Migração inicial do projeto, geometria e geração do tabuleiro em Prolog | Rodrigo |
+| 02 | Rodrigo Henrique Donato de Souza | [fofodoido](https://github.com/fofodoido) | Motor de regras e transições em Prolog | Davi |
+| 03 | Davi Araujo Bady Casseb | [dcasseb](https://github.com/dcasseb) | Contrato JSON, API HTTP e sessões | Mateus |
+| 04 | Mateus de Siqueira Silva | [siqueira-prog](https://github.com/siqueira-prog) | Modelo Elm, cliente HTTP e ciclo da partida | Carlos |
+| 05 | Carlos Eduardo Mendes de Mesquita | [CarlosEduardoMendesdeMesquita](https://github.com/CarlosEduardoMendesdeMesquita) | Tabuleiro e interface acessível e responsiva | Gabriel |
+| 06 | Gabriel Basto Bertolazi | [Bertolazi](https://github.com/Bertolazi) | Integração, CI, testes de aceite e documentação | Gustavo |
+
+Todo PR deve ser revisado e aprovado pelo responsável pela frente seguinte antes do merge, na sequência circular **01 → 02 → 03 → 04 → 05 → 06 → 01**. O autor solicita a revisão e resolve as alterações pedidas; a aprovação deve ficar registrada no GitHub. Cada integrante mantém os testes da própria frente.
+
+## Etapas de entrega
+
+1. Alinhar os contratos Prolog, JSON e Elm e preparar a estrutura da migração.
+2. Integrar o fluxo mínimo: criar partida, revelar célula e exibir o número retornado pelo Prolog.
+3. Completar regras, bandeiras, dificuldades, cronômetro e recuperação de erros.
+4. Validar acessibilidade, integração, testes e documentação; retirar o legado do produto ativo.
+
+## Como executar a base atual
+
+Estes comandos ainda executam o **Sudoku existente**. Serão adaptados durante a migração.
+
+Requisitos: [SWI-Prolog](https://www.swi-prolog.org/) 9+ e [Elm](https://elm-lang.org/) 0.19.1. Para instalar o compilador Elm via npm:
 
 ```sh
-make run          # compila o Elm e sobe o servidor em http://localhost:8080
-make run PORT=3000
-make test         # testes do backend (plunit)
+npm install -g elm
 ```
 
-Sem `make`:
+Com `make` disponível:
 
 ```sh
-cd frontend && elm make src/Main.elm --optimize --output=public/elm.js && cd ..
+make run
+make run PORT=3000
+make test
+```
+
+Sem `make`, compile o frontend e inicie o servidor:
+
+```sh
+cd frontend
+elm make src/Main.elm --optimize --output=public/elm.js
+cd ..
 swipl backend/server.pl 8080
 ```
 
-## O que torna este Sudoku diferente
+Abra `http://localhost:8080`. O bundle `frontend/public/elm.js` já está versionado; para executar a base sem recompilar, basta iniciar o servidor Prolog.
 
-| Recurso | Onde vive |
-| --- | --- |
-| 16 regras extras **combináveis**: Diagonal, Hyper, Anti-cavalo, Anti-rei, Disjunto, Não-consecutivo, Killer, Par/Ímpar, Termômetros, Setas, Kropki, X e V, Sussurro, Renban, Palíndromo, Entre-pontas | `backend/sudoku/geometry.pl`, `extras.pl`, `solver.pl`, `frontend/src/Variant.elm`, `Local.elm` |
-| Regras locais desenhadas pelo Prolog a partir da solução (gerar e testar) | `backend/sudoku/extras.pl` (`make_extras/3`), `frontend/src/Overlay.elm` |
-| Técnica "Regra local": um teste CLP(FD) por candidato, com explicação | `backend/sudoku/logic.pl` (`step_for(local_rule, ...)`) |
-| Meta-interpretador que conta as restrições do modelo | `backend/sudoku/meta.pl` |
-| Prolog chamado do Python (janus) | `backend/python/exemplo_janus.py` |
-| Gerador com solução única garantida para qualquer combinação de regras | `backend/sudoku/generator.pl` |
-| Dificuldade medida pela **técnica mais difícil necessária** (não pelo número de pistas) | `backend/sudoku/logic.pl` |
-| Dicas explicadas em português, em cadeia de passos, com destaque no tabuleiro | `logic.pl` (`hint/4`, `prune_chain/2`), `frontend/src/Main.elm` |
-| Modos Relaxado, Sobrevivência (3 vidas) e Contra o relógio | `frontend/src/Game.elm` |
-| Pontuação com combos, penalidade de dicas e bônus de conclusão | `frontend/src/Game.elm` |
-| Anotações, auto-notas, desfazer/refazer, atalhos de teclado | `frontend/src/Board.elm`, `Game.elm` |
-| Desafio diário com regras rotativas e sequência de dias | `frontend/src/Main.elm`, `frontend/public/index.html` |
-| Recordes por combinação de regras/dificuldade/modo (localStorage) | `Main.elm` (porta `saveStats`) |
+Para testar o backend atual:
 
-Veja [`docs/FEATURES.md`](docs/FEATURES.md) para o desenho completo e o
-roteiro de próximas features.
-
-## Arquitetura
-
-```
-frontend/ (Elm + HTML/CSS)                backend/ (SWI-Prolog)
-┌──────────────────────────┐   POST     ┌────────────────────────────────┐
-│ Main.elm   UI e eventos   │ /api/new  │ server.pl   HTTP + JSON        │
-│ Game.elm   modos, pontos  │──────────▶│ generator.pl  grade + escavação│
-│ Board.elm  conflitos,     │           │ solver.pl     CLP(FD)          │
-│            candidatos     │ /api/hint │ logic.pl      técnicas humanas │
-│ Variant.elm geometria     │──────────▶│ geometry.pl   casas, vizinhos  │
-│ Local.elm  regras locais  │           │ extras.pl     regras locais    │
-│ Overlay.elm desenho (SVG) │           │ meta.pl       conta restrições │
-│ Api.elm    JSON           │           │ templates.pl  grades-modelo    │
-└──────────────────────────┘           └────────────────────────────────┘
+```sh
+swipl -g run_tests -t halt backend/tests/test_sudoku.pl
 ```
 
-O servidor é *stateless*: o cliente devolve regras, gaiolas, paridade,
-regras locais e solução junto com o tabuleiro ao pedir uma dica.
+A suíte atual é de Sudoku. Os testes de Campo Minado e a automação das duas linguagens serão adicionados nas respectivas frentes.
 
-### API
+## Documentação
 
-`POST /api/new`
-
-```json
-{ "rules": ["killer", "diagonal"], "difficulty": "dificil", "seed": 42 }
-```
-
-Responde com `puzzle`, `solution` (81 inteiros, 0 = vazio), `cages`
-(`{sum, cells}`), `parity` (0 livre, 1 ímpar, 2 par), `extras` (regras
-locais `{type, cells, param}`; `param` é `"white"`/`"black"` no kropki,
-10/5 no X/V e `null` nos demais), `constraints` (quantas restrições
-CLP(FD) o modelo tem), `seed` e `rating` (`level` 1–5, `label`,
-`techniques` usadas com contagem).
-
-`POST /api/hint`
-
-```json
-{ "rules": [...], "cages": [...], "parity": [...], "extras": [...], "board": [...], "solution": [...] }
-```
-
-Responde `{"status": "steps", "steps": [...]}` (cada passo traz
-`technique`, `name`, `level`, `message`, `focus`, `unit`,
-`eliminations` e `placement`), `{"status": "errors", "cells": [...]}`
-quando há dígitos errados no tabuleiro, ou `{"status": "solved"}`.
+O documento principal do novo projeto é o [plano de Campo Minado](docs/PLANO_CAMPO_MINADO.md). Os arquivos [FEATURES.md](docs/FEATURES.md) e [EXPLICACAO.md](docs/EXPLICACAO.md) ainda descrevem o Sudoku e serão atualizados na integração final.
