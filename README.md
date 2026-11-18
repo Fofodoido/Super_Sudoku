@@ -83,8 +83,10 @@ Para testar o backend atual:
 swipl -g run_tests -t halt backend/tests/test_sudoku.pl
 ```
 
-A suíte atual é de Sudoku. Os testes de Campo Minado e a automação das duas linguagens serão adicionados nas respectivas frentes.
+Os testes do tabuleiro de Campo Minado podem ser executados com `swipl -g run_tests -t halt backend/tests/test_minesweeper_board.pl` ou `make test-minesweeper`. O comando `make test` executa as duas suítes. O motor, a API e o frontend de Campo Minado permanecem nas respectivas frentes.
 
 ## Documentação
+
+O [contrato do tabuleiro](docs/MINESWEEPER_BOARD.md) documenta os predicados implementados em `backend/minesweeper/board.pl` para integração com o motor. A revisão e aprovação do PR por Rodrigo (@fofodoido) continuam obrigatórias.
 
 O documento principal do novo projeto é o [plano de Campo Minado](docs/PLANO_CAMPO_MINADO.md). Os arquivos [FEATURES.md](docs/FEATURES.md) e [EXPLICACAO.md](docs/EXPLICACAO.md) ainda descrevem o Sudoku e serão atualizados na integração final.
