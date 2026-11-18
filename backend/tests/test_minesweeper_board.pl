@@ -3,6 +3,7 @@
 :- use_module(library(random)).
 :- use_module(library(lists)).
 :- use_module('../minesweeper/board').
+:- use_module('fixtures/minesweeper').
 
 :- begin_tests(minesweeper_board).
 
@@ -60,6 +61,14 @@ test(all_preset_neighbors, [forall(preset(_, Rows, Cols, _))]) :-
 
 test(adjacent_fixture, true(N == 2)) :-
     adjacent_mines(3, 3, [cell(1,0),cell(0,1)], cell(0,0), N).
+test(shared_fixtures, [forall(board_fixture(_, Rows, Cols, Mines, Counts))]) :-
+    cells(Rows, Cols, Cells),
+    findall(Cell, member(Cell-_, Counts), FixtureCells),
+    assertion(FixtureCells == Cells),
+    forall(member(Cell-Expected, Counts),
+           ( adjacent_mines(Rows, Cols, Mines, Cell, Actual),
+             assertion(Actual == Expected)
+           )).
 test(all_adjacent_counts, [forall(between(0, 8, Count))]) :-
     Ring = [cell(0,0),cell(0,1),cell(0,2),cell(1,0),
             cell(1,2),cell(2,0),cell(2,1),cell(2,2)],
@@ -107,6 +116,19 @@ test(reproducible) :-
         ( set_random(seed(123)), generate_mines(16, 30, 99, cell(15,29), A),
           set_random(seed(123)), generate_mines(16, 30, 99, cell(15,29), B),
           assertion(A == B)
+        ),
+        setrand(S)).
+
+test(presets_multiple_seeds,
+     [forall((preset(_, Rows, Cols, Count), member(Seed, [0,1,65535])))]) :-
+    setup_call_cleanup(
+        getrand(S),
+        ( set_random(seed(Seed)),
+          generate_mines(Rows, Cols, Count, cell(0,0), Mines),
+          assertion(length(Mines, Count)),
+          sort(Mines, Sorted), assertion(Mines == Sorted),
+          forall(member(M, Mines), assertion(valid_cell(Rows, Cols, M))),
+          assertion(\+ memberchk(cell(0,0), Mines))
         ),
         setrand(S)).
 

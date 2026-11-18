@@ -119,6 +119,14 @@ fixas, por exemplo `Rows=3, Cols=3, Mines=[cell(0,1),cell(1,0)]`.
 A injeção desses dados no estado de teste será definida pela frente 02, sem
 endpoint público de fixtures.
 
+Fixtures compartilhadas ficam em `backend/tests/fixtures/minesweeper.pl`.
+O módulo `minesweeper_fixtures` exporta
+`board_fixture(?Name, ?Rows, ?Cols, ?Mines, ?Counts)`, onde `Counts` lista
+`cell(Row, Col)-AdjacentMines` para todas as posições, inclusive minas.
+Os casos `rectangular`, `surrounded` e `empty` permitem testar bordas,
+primeira revelação numerada e expansão sem sorteio. O motor pode carregar esse
+módulo somente em seus testes; o termo de partida permanece sob sua responsabilidade.
+
 Os testes do gerador usam `library(random)` do SWI-Prolog com
 `getrand/1`, `set_random(seed(...))` e `setrand/1`, salvando e restaurando o estado
 por `setup_call_cleanup/3`, inclusive em falha ou exceção. Repetir a mesma semente
