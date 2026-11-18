@@ -33,6 +33,11 @@ O servidor Prolog será a autoridade sobre minas, revelações, bandeiras e resu
 | Tabuleiro e apresentação | frontend/src/Board.elm, frontend/public | Nova grade, controles e estilos |
 | Testes e entrega | backend/tests, frontend/tests, Makefile, docs | Adaptar comandos e documentação |
 
+A frente 01 registra a interface de geometria e geração em
+[MINESWEEPER_BOARD.md](MINESWEEPER_BOARD.md), com assinaturas, validações,
+fixtures e divisão de responsabilidades com o motor. O contrato foi definido por Gustavo, que dispensou alinhamento prévio separado;
+a revisão e aprovação do PR por Rodrigo (@fofodoido) continuam obrigatórias.
+
 Variant.elm, Local.elm, Overlay.elm e backend/sudoku ficam até o fluxo novo compilar e passar nos testes; removê-los do produto ativo na integração final, preservando o histórico Git. Revisar também título, favicon, textos, artefatos compilados e exemplo Janus: nenhum exemplo de Sudoku deve ser apresentado como exemplo do produto novo. Não há dependência funcional de Python no MVP.
 
 Sessões em memória, com identificador opaco gerado pelo servidor, acesso por identificador e expiração após 2 horas de inatividade. Reiniciar o servidor perde as partidas; documentar isso. Sem persistência e sem autenticação no MVP. Sincronizar cada ação por partida para evitar perda de atualização. Limitar a quantidade de sessões e retornar erro controlado ao atingir o limite.
