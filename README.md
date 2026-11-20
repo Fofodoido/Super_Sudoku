@@ -2,7 +2,7 @@
 
 Projeto de Campo Minado web desenvolvido com SWI-Prolog e Elm, com interface em português e HTML/CSS.
 
-**Estado atual:** a base Prolog de geometria e geração de Campo Minado está implementada e testada. O servidor e o bundle compilado ainda executam o Sudoku original; motor, API e interface de Campo Minado permanecem nas respectivas frentes.
+**Estado atual:** a base Prolog de geometria, geração e motor de regras/transições de Campo Minado (`backend/minesweeper/board.pl` e `backend/minesweeper/game.pl`) está implementada e testada. O servidor e o bundle compilado ainda executam o Sudoku original; API HTTP e interface de Campo Minado permanecem nas respectivas frentes.
 
 ## Escopo planejado
 
@@ -83,12 +83,14 @@ Para testar o backend atual:
 swipl -g run_tests -t halt backend/tests/test_sudoku.pl
 ```
 
-Os testes do tabuleiro de Campo Minado podem ser executados com `swipl -g run_tests -t halt backend/tests/test_minesweeper_board.pl` ou `make test-minesweeper`. O comando `make test` executa as duas suítes. O motor, a API e o frontend de Campo Minado permanecem nas respectivas frentes.
+Os testes do tabuleiro e do motor de Campo Minado podem ser executados com `swipl -g run_tests -t halt backend/tests/test_minesweeper_board.pl` e `swipl -g run_tests -t halt backend/tests/test_minesweeper_game.pl`, ou com `make test-minesweeper`. O comando `make test` executa as suítes de Sudoku e Campo Minado. A API HTTP e o frontend de Campo Minado permanecem nas respectivas frentes.
 
 ## Documentação
 
 O [mapa de migração e integração](docs/MIGRACAO_CAMPO_MINADO.md) identifica os módulos a substituir, os pontos de integração e as responsabilidades pela retirada final do legado.
 
-O [contrato do tabuleiro](docs/MINESWEEPER_BOARD.md) documenta os predicados implementados em `backend/minesweeper/board.pl` para integração com o motor. A revisão e aprovação do PR por Rodrigo (@fofodoido) continuam obrigatórias.
+O [contrato do tabuleiro](docs/MINESWEEPER_BOARD.md) documenta os predicados implementados em `backend/minesweeper/board.pl` para integração com o motor.
+
+O [contrato do motor](docs/MINESWEEPER_GAME.md) documenta os predicados, ações, erros e projeção pública implementados em `backend/minesweeper/game.pl` para integração com a API HTTP.
 
 O documento principal do novo projeto é o [plano de Campo Minado](docs/PLANO_CAMPO_MINADO.md). Os arquivos [FEATURES.md](docs/FEATURES.md) e [EXPLICACAO.md](docs/EXPLICACAO.md) ainda descrevem o Sudoku e serão atualizados na integração final.

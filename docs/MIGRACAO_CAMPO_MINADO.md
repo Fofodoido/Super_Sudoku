@@ -48,6 +48,10 @@ O módulo de fixtures `backend/tests/fixtures/minesweeper.pl` pode ser importado
 nos testes do motor. Ele fornece dimensões, minas e contagens esperadas sem
 definir um termo de estado de partida nem abrir uma API de teste.
 
+**Implementado na frente 02:** `backend/minesweeper/game.pl` (`minesweeper_game`),
+com testes em `backend/tests/test_minesweeper_game.pl` e contrato detalhado em
+[MINESWEEPER_GAME.md](MINESWEEPER_GAME.md).
+
 ### Frente 03 — API e sessões de Davi
 
 O servidor atual usa `/api/new` e `/api/hint` e inclui semente e solução no fluxo
@@ -55,11 +59,12 @@ de Sudoku. Esses handlers não devem ser adaptados por simples renomeação: o n
 servidor guarda o estado real da partida e produz uma projeção pública.
 
 O contrato planejado usa `POST /api/games`, `GET /api/games/:id` e
-`POST /api/games/:id/actions`. Converter `row`/`col` inteiros para `cell/2`, validar
-com as dimensões da sessão e mapear erros conforme o plano. Enquanto `ready` ou
-`playing`, não expor minas, semente ou números de células ocultas. Sessões,
-sincronização de ações e expiração ficam nesta frente; `board.pl` não tem estado
-global mutável de partidas. `docs/API.md` será produzido pela frente 03.
+`POST /api/games/:id/actions`. O módulo `minesweeper_game` já aceita ações
+no formato dict JSON e fornece `public_snapshot/3` com o campo `id`, além dos
+erros mapeados para HTTP 400 (`invalid_action`, `invalid_cell`) e HTTP 409
+(`game_over`, `cell_flagged`, `cell_revealed`). Sessões, sincronização de ações e
+expiração ficam nesta frente; `board.pl` e `game.pl` não mantêm estado global
+mutável de partidas. `docs/API.md` será produzido pela frente 03.
 
 ### Frentes 04 e 05 — cliente e apresentação
 
@@ -82,10 +87,11 @@ o código fonte. Preservar o histórico e as evidências de revisão de cada PR.
 
 ```sh
 swipl -g run_tests -t halt backend/tests/test_minesweeper_board.pl
+swipl -g run_tests -t halt backend/tests/test_minesweeper_game.pl
 swipl -g run_tests -t halt backend/tests/test_sudoku.pl
 ```
 
-Com make disponível, `make test-minesweeper` verifica a frente 01 e `make test`
-executa as duas suítes. O aceite de HTTP, Elm, interface, sessões e regras do
-motor depende das entregas correspondentes. A base não promete região inicial
-vazia ou partidas sem adivinhação.
+Com make disponível, `make test-minesweeper` verifica as frentes 01 e 02 e
+`make test` executa todas as suítes. O aceite de HTTP, Elm, interface, sessões e
+integração final depende das entregas correspondentes. A base não promete região
+inicial vazia ou partidas sem adivinhação.
