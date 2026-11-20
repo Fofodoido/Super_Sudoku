@@ -3,7 +3,7 @@ PORT ?= 8080
 
 ELM_SRC := $(wildcard frontend/src/*.elm)
 
-.PHONY: build run test clean
+.PHONY: build run test test-minesweeper clean
 
 build: frontend/public/elm.js
 
@@ -15,6 +15,10 @@ run: build
 
 test:
 	swipl -g run_tests -t halt backend/tests/test_sudoku.pl
+	swipl -g run_tests -t halt backend/tests/test_minesweeper_board.pl
+
+test-minesweeper:
+	swipl -g run_tests -t halt backend/tests/test_minesweeper_board.pl
 
 clean:
 	rm -rf frontend/public/elm.js frontend/elm-stuff
