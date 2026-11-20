@@ -16,9 +16,11 @@ run: build
 test:
 	swipl -g run_tests -t halt backend/tests/test_sudoku.pl
 	swipl -g run_tests -t halt backend/tests/test_minesweeper_board.pl
+	swipl -g run_tests -t halt backend/tests/test_minesweeper_game.pl
 
 test-minesweeper:
 	swipl -g run_tests -t halt backend/tests/test_minesweeper_board.pl
+	swipl -g run_tests -t halt backend/tests/test_minesweeper_game.pl
 
 clean:
 	rm -rf frontend/public/elm.js frontend/elm-stuff
